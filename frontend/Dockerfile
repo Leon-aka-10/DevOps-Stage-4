@@ -10,9 +10,6 @@ RUN npm install
 # Copy application files
 COPY . . 
 
-# Copy .env file for environment variables
-COPY .env .env
-
 # Expose the development port
 EXPOSE 8080
 
