@@ -1,30 +1,107 @@
-version: "3.8"
+version: '3.8'
+
 services:
-  frontend:
-    build: ./frontend
+  traefik:
+    image: traefik:v2.9
+    restart: always
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=your-email@domain.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
     ports:
       - "80:80"
-    depends_on:
-      - auth-api
-      - todos-api
-      - users-api
+      - "443:443"
+    volumes:
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - "./letsencrypt:/letsencrypt"
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: always
+    environment:
+      - PORT=${PORT}
+      - AUTH_API_ADDRESS=${AUTH_API_ADDRESS}
+      - TODOS_API_ADDRESS=${TODOS_API_ADDRESS}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`domain.com`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls.certresolver=myresolver"
+    networks:
+      - app-network
 
   auth-api:
-    build: ./auth-api
-    ports:
-      - "8081:8080"
+    build:
+      context: ./auth-api
+    restart: always
+    environment:
+      - AUTH_API_PORT=${AUTH_API_PORT}
+      - JWT_SECRET=${JWT_SECRET}
+      - USERS_API_ADDRESS=${USERS_API_ADDRESS}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth-api.rule=Host(`auth.domain.com`)"
+      - "traefik.http.routers.auth-api.entrypoints=websecure"
+      - "traefik.http.routers.auth-api.tls.certresolver=myresolver"
+    networks:
+      - app-network
 
   todos-api:
-    build: ./todos-api
-    ports:
-      - "8082:8080"
+    build:
+      context: ./todos-api
+    restart: always
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_CHANNEL=${REDIS_CHANNEL}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.todos-api.rule=Host(`todos.domain.com`)"
+      - "traefik.http.routers.todos-api.entrypoints=websecure"
+      - "traefik.http.routers.todos-api.tls.certresolver=myresolver"
+    networks:
+      - app-network
 
   users-api:
-    build: ./users-api
-    ports:
-      - "8083:8080"
+    build:
+      context: ./users-api
+    restart: always
+    environment:
+      - SERVER_PORT=${SERVER_PORT}
+      - JWT_SECRET=${JWT_SECRET}
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.users-api.rule=Host(`users.domain.com`)"
+      - "traefik.http.routers.users-api.entrypoints=websecure"
+      - "traefik.http.routers.users-api.tls.certresolver=myresolver"
+    networks:
+      - app-network
 
-  redis:
+  log-message-processor:
+    build:
+      context: ./log-message-processor
+    restart: always
+    environment:
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_CHANNEL=${REDIS_CHANNEL}
+    networks:
+      - app-network
+
+  redis-queue:
     image: redis:alpine
-    ports:
-      - "6379:6379"
+    restart: always
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
