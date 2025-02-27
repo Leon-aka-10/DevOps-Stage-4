@@ -31,7 +31,7 @@ services:
       - TODOS_API_ADDRESS=${TODOS_API_ADDRESS}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.frontend.rule=Host(`domain.com`)"
+      - "traefik.http.routers.frontend.rule=Host(`52.138.55.44`)"
       - "traefik.http.routers.frontend.entrypoints=web"
       - "traefik.http.routers.frontend.tls.certresolver=myresolver"
     networks:
@@ -47,7 +47,7 @@ services:
       - USERS_API_ADDRESS=${USERS_API_ADDRESS}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.auth-api.rule=Host(`auth.domain.com`)"
+      - "traefik.http.routers.auth-api.rule=Host(`52.138.55.44`)"
       - "traefik.http.routers.auth-api.entrypoints=websecure"
       - "traefik.http.routers.auth-api.tls.certresolver=myresolver"
     networks:
@@ -64,7 +64,7 @@ services:
       - REDIS_CHANNEL=${REDIS_CHANNEL}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.todos-api.rule=Host(`todos.domain.com`)"
+      - "traefik.http.routers.todos-api.rule=Host(`52.138.55.44`)"
       - "traefik.http.routers.todos-api.entrypoints=websecure"
       - "traefik.http.routers.todos-api.tls.certresolver=myresolver"
     networks:
@@ -79,7 +79,7 @@ services:
       - JWT_SECRET=${JWT_SECRET}
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.users-api.rule=Host(`users.domain.com`)"
+      - "traefik.http.routers.users-api.rule=Host(`52.138.55.44`)"
       - "traefik.http.routers.users-api.entrypoints=websecure"
       - "traefik.http.routers.users-api.tls.certresolver=myresolver"
     networks:
