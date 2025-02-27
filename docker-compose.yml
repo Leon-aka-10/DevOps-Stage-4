@@ -80,7 +80,7 @@ services:
     build:
       context: ./users-api
     restart: always
-    image: auth-api
+    image: user-api
     ports:
       - "8083:8083" # Ensures the app listens on 8081 inside the container
     environment:
