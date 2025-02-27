@@ -24,7 +24,7 @@ var (
 )
 
 func main() {
-	hostport := ":" + os.Getenv("AUTH_API_PORT")
+	hostport := "8081"
 	userAPIAddress := os.Getenv("USERS_API_ADDRESS")
 
 	envJwtSecret := os.Getenv("JWT_SECRET")
@@ -70,7 +70,8 @@ func main() {
 	e.POST("/login", getLoginHandler(userService))
 
 	// Start server
-	e.Logger.Fatal(e.Start(":8081"))
+	e.Logger.Fatal(e.Start(":" + hostport))
+
 }
 
 type LoginRequest struct {
