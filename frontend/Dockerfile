@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM node:12-alpine AS build
+FROM node:18-alpine AS build
 WORKDIR /app
 
 # Copy package files and install dependencies
@@ -12,21 +12,23 @@ COPY . .
 # Build the application
 RUN npm run build
 
-# Stage 2: Serve the application using Nginx
-FROM nginx:alpine
+# Stage 2: Serve the application
+FROM node:18-alpine
+WORKDIR /app
 
-# Copy built application to Nginx's web root
-COPY --from=build /app/dist /usr/share/nginx/html
+# Install a lightweight static file server
+RUN npm install -g serve
 
-# Copy custom Nginx configuration
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Copy built files from the build stage
+COPY --from=build /app/dist /app
 
-# Set environment variables
-ENV PORT=${PORT}
+# Set environment variables (optional)
+ENV PORT=80
 ENV AUTH_API_ADDRESS=${AUTH_API_ADDRESS}
 ENV TODOS_API_ADDRESS=${TODOS_API_ADDRESS}
 
-# Expose application port
-EXPOSE $PORT
+# Expose the port Traefik will route to
+EXPOSE 80
 
-CMD ["nginx", "-g", "daemon off;"]
+# Serve the built application
+CMD ["serve", "-s", ".", "-l", "80"]
