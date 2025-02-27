@@ -25,6 +25,9 @@ services:
     build:
       context: ./frontend
     restart: always
+    image: frontend
+    ports:
+      - "8080:8080" # Ensures the app listens on 8081 inside the container
     environment:
       - PORT=8080
       - AUTH_API_ADDRESS=${AUTH_API_ADDRESS}
