@@ -15,7 +15,7 @@ COPY src ./src
 RUN mvn package -DskipTests
 
 # Stage 2: Run the application using OpenJDK JRE
-FROM openjdk:11-jre-slim
+FROM openjdk:8-jre-slim
 
 # Set working directory
 WORKDIR /app
