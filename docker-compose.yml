@@ -41,8 +41,11 @@ services:
     build:
       context: ./auth-api
     restart: always
+    image: auth-api
+    ports:
+      - "8081:8081" # Ensures the app listens on 8081 inside the container
     environment:
-      - AUTH_API_PORT=${AUTH_API_PORT}
+      - PORT=8081 # Passes the correct port to Go app
       - JWT_SECRET=${JWT_SECRET}
       - USERS_API_ADDRESS=${USERS_API_ADDRESS}
     labels:
