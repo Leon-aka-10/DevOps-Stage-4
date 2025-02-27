@@ -87,7 +87,6 @@ services:
       - PORT=8083 # Passes the correct port to app
       - SERVER_PORT=${SERVER_PORT}
       - JWT_SECRET=${JWT_SECRET}
-      - USERS_API_URL: "http://users-api:8083"
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.users-api.rule=Host(`52.138.55.44`)"
